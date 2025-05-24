@@ -30,7 +30,10 @@ jobs:
       # 3. Docker Build - 프론트엔드
       - name: Build Frontend Image
         run: |
-          docker build -t my-frontend ./frontend
+          docker build \
+            -t my-frontend \
+            --build-arg VITE_API_URL=http://backend:8080 \
+            ./frontend
 
       
 
