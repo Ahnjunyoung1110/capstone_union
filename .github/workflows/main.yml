@@ -64,18 +64,10 @@ jobs:
     
             echo "♻️  Restart containers"
             # 👉 방법 1) docker compose 사용
-            if [ -f docker-compose.yml ] || [ -f docker-compose.yaml ]; then
-              docker compose pull   || true       # (compose v2)
-              docker compose down   || true
-              docker compose up -d --force-recreate
-            else
-              # 👉 방법 2) 개별 컨테이너 실행 예시
-              docker stop backend  || true && docker rm backend || true
-              docker stop frontend || true && docker rm frontend || true
-    
-              docker run -d --name backend  -p 8080:8080 my-backend
-              docker run -d --name frontend -p 80:80    my-frontend
-            fi
+            docker compose pull   || true       # (compose v2)
+            docker compose down   || true
+            docker compose up -d --force-recreate
+
     
             echo "✅  Deploy done"
 
