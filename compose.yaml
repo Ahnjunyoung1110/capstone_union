@@ -31,9 +31,7 @@ services:
 
   # 3) 백엔드(Spring Boot + Gradle) ---------------------------------------------------
   app:
-    build:
-      context: ./backend          # 백엔드 Dockerfile 위치
-      # dockerfile: Dockerfile    # 다른 이름이라면 명시
+    image: my-backend
     container_name: backend
     depends_on:
       db:
@@ -55,8 +53,7 @@ services:
 
   # 4) 프론트엔드(React + Vite → Nginx 멀티스테이지) ----------------------------------
   frontend:
-    build:
-      context: ./frontend         # 프론트 Dockerfile 위치
+    image: my-frontend
     container_name: frontend
     depends_on:
       - app                       # 백엔드 뜬 뒤 실행
