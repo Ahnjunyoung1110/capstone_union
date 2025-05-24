@@ -59,7 +59,7 @@ services:
       - app                       # 백엔드 뜬 뒤 실행
     environment:
       # 필요하면 API 주소를 환경변수로 주입 (Vite + Nginx 기준 예시)
-      VITE_API_BASE_URL: http://app:8080
+      VITE_API_BASE_URL: http://backend:8080
     ports:
       - "80:80"                   # 외부 80 → 컨테이너 80(Nginx)
 
