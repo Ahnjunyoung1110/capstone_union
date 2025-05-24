@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+  # 1) 데이터베이스 ------------------------------------------------------------------
+  db:
+    image: mariadb:10.11
+    container_name: db
+    volumes:
+      # 로컬 볼륨 → 컨테이너 내부의 DB 데이터 디렉터리로 마운트
+      - dev-db-data:/var/lib/mysql          # 공식 이미지 기준 경로
+    environment:
+      # 꼭 실제 비밀값으로 교체하세요
+      MARIADB_ROOT_PASSWORD: some_root_password
+      MARIADB_DATABASE: devdb
+      MARIADB_USER: devuser
+      MARIADB_PASSWORD: changeme
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-psome_root_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # 2) 캐시 / 메시지브로커 ------------------------------------------------------------
+  redis:
+    image: redis:6.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  # 3) 백엔드(Spring Boot + Gradle) ---------------------------------------------------
+  app:
+    build:
+      context: ./backend          # 백엔드 Dockerfile 위치
+      # dockerfile: Dockerfile    # 다른 이름이라면 명시
+    container_name: backend
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      # 백엔드가 내부 네트워크 컨테이너 이름으로 DB·Redis에 붙도록 설정
+      SPRING_DATASOURCE_URL: jdbc:mariadb://db:3306/devdb
+      SPRING_DATASOURCE_USERNAME: devuser
+      SPRING_DATASOURCE_PASSWORD: changeme
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+    ports:
+      - "8080:8080"
+    # 개발 시 코드 핫리로드가 필요하면 주석 해제
+    # volumes:
+    #   - ./backend/src:/app/src
+
+  # 4) 프론트엔드(React + Vite → Nginx 멀티스테이지) ----------------------------------
+  frontend:
+    build:
+      context: ./frontend         # 프론트 Dockerfile 위치
+    container_name: frontend
+    depends_on:
+      - app                       # 백엔드 뜬 뒤 실행
+    environment:
+      # 필요하면 API 주소를 환경변수로 주입 (Vite + Nginx 기준 예시)
+      VITE_API_BASE_URL: http://app:8080
+    ports:
+      - "80:80"                   # 외부 80 → 컨테이너 80(Nginx)
+
+volumes:
+  dev-db-data:
