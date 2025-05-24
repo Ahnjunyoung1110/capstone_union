@@ -31,6 +31,7 @@ jobs:
         run: |
           docker save -o backend.tar my-backend
           docker save -o frontend.tar my-frontend
+          chmod 644 backend.tar frontend.tar
 
           
       # 5) tar 파일 EC2로 복사 (SSH/SCP)
