@@ -32,3 +32,49 @@ jobs:
           docker save -o backend.tar my-backend
           docker save -o frontend.tar my-frontend
 
+          
+      # 5) tar 파일 EC2로 복사 (SSH/SCP)
+      #    SSH 개인키·호스트·사용자명은 GitHub Secrets 로 보관
+      - name: Copy images to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host:     ${{ secrets.EC2_HOST }}        # 예: "13.124.xxx.xxx"
+          username: ${{ secrets.EC2_USER }}        # 예: "ec2-user" or "ubuntu"
+          key:      ${{ secrets.EC2_SSH_KEY }}     # PEM 개인키
+          port:     22
+          source:   "backend.tar,frontend.tar"
+          target:   "~/deploy/"                    # EC2 내 배포 디렉터리
+    
+      # 6) EC2 내부에서 Docker 이미지 로드 + 컨테이너(또는 compose) 재시작
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host:     ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key:      ${{ secrets.EC2_SSH_KEY }}
+          port:     22
+          script: |
+            set -e
+            cd ~/deploy
+    
+            echo "🛠  Docker image load"
+            docker load -i backend.tar
+            docker load -i frontend.tar
+    
+            echo "♻️  Restart containers"
+            # 👉 방법 1) docker compose 사용
+            if [ -f docker-compose.yml ] || [ -f docker-compose.yaml ]; then
+              docker compose pull   || true       # (compose v2)
+              docker compose down   || true
+              docker compose up -d --force-recreate
+            else
+              # 👉 방법 2) 개별 컨테이너 실행 예시
+              docker stop backend  || true && docker rm backend || true
+              docker stop frontend || true && docker rm frontend || true
+    
+              docker run -d --name backend  -p 8080:8080 my-backend
+              docker run -d --name frontend -p 80:80    my-frontend
+            fi
+    
+            echo "✅  Deploy done"
+
