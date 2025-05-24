@@ -19,8 +19,8 @@ jobs:
       # 파이어베이스 JSON 만들기
       - name: Generate Firebase Admin SDK JSON
         run: |
-          mkdir -p backend/config
-          echo "${{ secrets.FIREBASE_JSON }}" > backend/config/firebase-adminsdk.json
+          mkdir -p backend/src/main/resources
+          echo '${{ secrets.FIREBASE_JSON }}' > backend/src/main/resources/capstonealram-firebase-adminsdk.json
 
       # 2. Docker Build - 백엔드
       - name: Build Backend Image
