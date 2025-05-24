@@ -1,0 +1,6 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/khj0998/capstone.git
+[submodule "backend"]
+	path = backend
+	url = https://github.com/Ahnjunyoung1110/capstone_server_docker
