@@ -26,6 +26,12 @@ jobs:
         run: |
           docker build -t my-frontend ./frontend
 
+      # 파이어베이스 JSON 만들기
+      - name: Generate Firebase Admin SDK JSON
+        run: |
+          mkdir -p backend/config
+          echo "${{ secrets.FIREBASE_JSON }}" > backend/config/firebase-adminsdk.json
+
       # 4. Docker Save - tar로 저장
       - name: Save Images to tar
         run: |
@@ -43,7 +49,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}        # 예: "ec2-user" or "ubuntu"
           key:      ${{ secrets.EC2_SSH_KEY }}     # PEM 개인키
           port:     22
-          source:   "backend.tar,frontend.tar ,compose.yaml"
+          source:   "backend.tar,frontend.tar,compose.yaml,backend/config/firebase-adminsdk.json"
           target:   "~/deploy/"                    # EC2 내 배포 디렉터리
     
       # 6) EC2 내부에서 Docker 이미지 로드 + 컨테이너(또는 compose) 재시작
