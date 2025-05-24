@@ -61,10 +61,12 @@ jobs:
             echo "🛠  Docker image load"
             docker load -i backend.tar
             docker load -i frontend.tar
+
+            echo "🧹 Stop and remove old containers (if exist)"
+            docker rm -f backend frontend || true
     
             echo "♻️  Restart containers"
             # 👉 방법 1) docker compose 사용
-            docker compose pull   || true       # (compose v2)
             docker compose down   || true
             docker compose up -d --force-recreate
 
