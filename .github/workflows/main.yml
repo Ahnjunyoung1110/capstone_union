@@ -1,0 +1,33 @@
+name: Build the front and back with push
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. 소스 체크아웃 (서브모듈 포함)
+      - name: Checkout with submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      # 2. Docker Build - 백엔드
+      - name: Build Backend Image
+        run: |
+          docker build -t my-backend ./backend
+
+      # 3. Docker Build - 프론트엔드
+      - name: Build Frontend Image
+        run: |
+          docker build -t my-frontend ./frontend
+
+      # 4. Docker Save - tar로 저장
+      - name: Save Images to tar
+        run: |
+          docker save -o backend.tar my-backend
+          docker save -o frontend.tar my-frontend
+
