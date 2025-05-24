@@ -43,7 +43,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}        # 예: "ec2-user" or "ubuntu"
           key:      ${{ secrets.EC2_SSH_KEY }}     # PEM 개인키
           port:     22
-          source:   "backend.tar,frontend.tar"
+          source:   "backend.tar,frontend.tar ,compose.yaml"
           target:   "~/deploy/"                    # EC2 내 배포 디렉터리
     
       # 6) EC2 내부에서 Docker 이미지 로드 + 컨테이너(또는 compose) 재시작
