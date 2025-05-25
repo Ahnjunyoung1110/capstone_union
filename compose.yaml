@@ -45,11 +45,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: changeme
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-    ports:
-      - "8080:8080"
-    # 개발 시 코드 핫리로드가 필요하면 주석 해제
-    # volumes:
-    #   - ./backend/src:/app/src
+    expose:
+      - "8080"
 
   # 4) 프론트엔드(React + Vite → Nginx 멀티스테이지) ----------------------------------
   frontend:
@@ -60,8 +57,8 @@ services:
     environment:
       # 필요하면 API 주소를 환경변수로 주입 (Vite + Nginx 기준 예시)
       VITE_API_BASE_URL: http://backend:8080
-    ports:
-      - "80:80"                   # 외부 80 → 컨테이너 80(Nginx)
+    expose:
+      - "80"
 
 volumes:
   dev-db-data:
